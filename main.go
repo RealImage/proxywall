@@ -6,28 +6,36 @@ import (
 	"net/url"
 	"log"
 	"regexp"
+	"encoding/base64"
+	"encoding/json"
 )
 
 type QueryRestriction struct {
-	Key        string
-	ValueRegex string
+	Key        string `json:"key"`
+	ValueRegex string `json:"valueRegex"`
 }
 
 type Config struct {
-	URL               string
-	QueryRestrictions []QueryRestriction
+	URL               string             `json:"url"`
+	QueryRestrictions []QueryRestriction `json:"queryRestrictions"`
+}
+
+func ParseConfigFromBase64(encodedConfig string) (config Config) {
+	raw, _ := base64.StdEncoding.DecodeString(encodedConfig)
+	json.Unmarshal(raw, &config)
+	return
 }
 
 func (config Config) serverURL() *url.URL {
-	u, err := url.Parse(config.URL)
+	uri, err := url.Parse(config.URL)
 	if err != nil {
 		log.Fatal("Sever URL is invalid :" + config.URL)
 	}
-	return u
+	return uri
 }
 
 func ProxyHandler(config Config) http.HandlerFunc {
-	server := httputil.NewSingleHostReverseProxy(config.serverURL())
+	origin := httputil.NewSingleHostReverseProxy(config.serverURL())
 	return func(writer http.ResponseWriter, request *http.Request) {
 		request.ParseForm()
 		for _, restriction := range config.QueryRestrictions {
@@ -37,7 +45,7 @@ func ProxyHandler(config Config) http.HandlerFunc {
 				return
 			}
 		}
-		server.ServeHTTP(writer, request)
+		origin.ServeHTTP(writer, request)
 	}
 }
 
