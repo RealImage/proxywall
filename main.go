@@ -1,13 +1,14 @@
 package main
 
 import (
+	"encoding/base64"
+	"encoding/json"
+	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"log"
+	"os"
 	"regexp"
-	"encoding/base64"
-	"encoding/json"
 )
 
 type QueryRestriction struct {
@@ -35,6 +36,7 @@ func (config Config) serverURL() *url.URL {
 }
 
 func ProxyHandler(config Config) http.HandlerFunc {
+	log.Println(config)
 	origin := httputil.NewSingleHostReverseProxy(config.serverURL())
 	return func(writer http.ResponseWriter, request *http.Request) {
 		request.ParseForm()
@@ -50,5 +52,6 @@ func ProxyHandler(config Config) http.HandlerFunc {
 }
 
 func main() {
-
+	handler := ProxyHandler(ParseConfigFromBase64(os.Getenv("CONFIG")))
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), handler))
 }
