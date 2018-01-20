@@ -9,6 +9,8 @@ import (
 	"net/url"
 	"os"
 	"regexp"
+
+	"github.com/urfave/negroni"
 )
 
 type QueryRestriction struct {
@@ -53,5 +55,7 @@ func ProxyHandler(config Config) http.HandlerFunc {
 
 func main() {
 	handler := ProxyHandler(ParseConfigFromBase64(os.Getenv("CONFIG")))
-	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), handler))
+	n := negroni.Classic()
+	n.UseHandlerFunc(handler)
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), n))
 }
