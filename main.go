@@ -41,6 +41,7 @@ func ProxyHandler(config Config) http.HandlerFunc {
 	log.Println(config)
 	origin := httputil.NewSingleHostReverseProxy(config.serverURL())
 	return func(writer http.ResponseWriter, request *http.Request) {
+		log.Println("Received Request: ", request)
 		request.ParseForm()
 		for _, restriction := range config.QueryRestrictions {
 			value := request.Form.Get(restriction.Key)
