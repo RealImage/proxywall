@@ -58,5 +58,6 @@ func main() {
 	handler := ProxyHandler(ParseConfigFromBase64(os.Getenv("CONFIG")))
 	n := negroni.Classic()
 	n.UseHandlerFunc(handler)
+	log.Println("Starting ProxyWall on port: ", os.Getenv("PORT"))
 	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), n))
 }
