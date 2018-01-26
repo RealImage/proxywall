@@ -2,10 +2,10 @@ package main
 
 import (
 	"net/http"
-	"testing"
 	"net/http/httptest"
 	"reflect"
 	"strconv"
+	"testing"
 )
 
 func TestConfigParsing(t *testing.T) {
@@ -78,7 +78,7 @@ func TestProxyHandler(t *testing.T) {
 	for _, exp := range tests {
 		originResponse, _ := http.Get(origin.URL + exp.query)
 		if originResponse.StatusCode != exp.originStatusCode {
-			t.Fatal("Origin status code did not match", )
+			t.Fatal("Origin status code did not match")
 		}
 		proxyResponse, _ := http.Get(proxy.URL + exp.query)
 		if proxyResponse.StatusCode != exp.proxyStatusCode {
